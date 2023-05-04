@@ -12,7 +12,7 @@ class NodeEditor(FloatLayout):
         self.nodes = []
         self.line_start_node_interface = None
 
-    def node_touched(self, touch):
+    def touched_node(self, touch):
         for node in self.nodes:
             if node.touched(touch):
                 return node
@@ -20,14 +20,16 @@ class NodeEditor(FloatLayout):
     def on_touch_down(self, touch):
         super(NodeEditor, self).on_touch_down(touch)
 
-        touched_node = self.node_touched(touch)
+        touched_node = self.touched_node(touch)
         if touched_node is not None:
-            touched_node_interface = touched_node.interface_touched(touch)
-            if touched_node_interface is not None:
-                if 'line' not in touch.ud:
-                    with self.canvas:
-                        touch.ud['line'] = Line(points=[touched_node_interface.center_x, touched_node_interface.center_y, touched_node_interface.center_x, touched_node_interface.center_y], width=2)
-                    self.line_start_node_interface = touched_node_interface
+            touched_node_method = touched_node.touched_method(touch)
+            if touched_node_method is not None:
+                touched_node_interface = touched_node_method.touched_interface(touch)
+                if touched_node_interface is not None:
+                    if 'line' not in touch.ud:
+                        with self.canvas:
+                            touch.ud['line'] = Line(points=[touched_node_interface.center_x, touched_node_interface.center_y, touched_node_interface.center_x, touched_node_interface.center_y], width=2)
+                        self.line_start_node_interface = touched_node_interface
         else:
             self.nodes.append(Node(pos=(touch.x, touch.y)))
             self.add_widget(self.nodes[-1])
@@ -47,23 +49,22 @@ class NodeEditor(FloatLayout):
 
         if 'line' in touch.ud:
             is_new_interface = False
-            touched_node = self.node_touched(touch)
+            touched_node = self.touched_node(touch)
             if touched_node is not None:
-                touched_node_interface = touched_node.interface_touched(touch)
-                if touched_node_interface is not None and touched_node_interface is not self.line_start_node_interface:
-                    is_new_interface = True
-                    line_points = touch.ud['line'].points
-                    with self.canvas:
-                        touch.ud['line'].points = [line_points[0], line_points[1], touched_node_interface.center_x, touched_node_interface.center_y]
+                touched_node_method = touched_node.touched_method(touch)
+                if touched_node_method is not None:
+                    touched_node_interface = touched_node_method.touched_interface(touch)
+                    if touched_node_interface is not None:
+                        if touched_node_interface is not None and touched_node_interface is not self.line_start_node_interface:
+                            is_new_interface = True
+                            line_points = touch.ud['line'].points
+                            with self.canvas:
+                                touch.ud['line'].points = [line_points[0], line_points[1], touched_node_interface.center_x, touched_node_interface.center_y]
 
             if not is_new_interface:
                 self.canvas.remove(touch.ud['line'])
 
         self.line_start_node_interface = None
-        return True
-
-    def on_double_tap(self):
-        super(NodeEditor, self).on_double_tap()
         return True
 
 
