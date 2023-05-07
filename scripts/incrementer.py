@@ -1,18 +1,16 @@
-class Incrementer:
+class Calculator:
     def __init__(self):
-        self.value = None
+        return
 
-    def increment(self, value: int) -> int:
+    def increment(self, value: float) -> float:
         value += 1
-        self.value = value
-        return self.value
+        return value
 
-    def increment2(self, value: int) -> int:
-        value += 1
-        self.value = value
-        return self.value
+    def multiply(self, value1: float, value2: float) -> float:
+        return value1 * value2
 
-    def increment3(self, value: int) -> int:
-        value += 1
-        self.value = value
-        return self.value
+    def divide(self, divisor: float, dividend: float) -> float:
+        if dividend != 0:
+        	divisor / dividend
+        else:
+        	return 0
