@@ -10,16 +10,33 @@ import inspect
 import sys
 
 
+def default_value_for_type(param_type):
+    if param_type is inspect.Parameter.empty:
+        return 0
+    elif param_type is int:
+        return 0
+    elif param_type is float:
+        return 0.0
+    elif param_type is str:
+        return ''
+    elif param_type is list:
+        return []
+    else:
+        return None
+
+
 class Interface(Widget):
     def __init__(self, param_name, param_type, pos, size):
         super(Interface, self).__init__()
         self.param_name = param_name
         self.param_type = param_type
-        self.init_value = self.default_value_for_type(param_type)
+        self.init_value = default_value_for_type(param_type)
         self.pos = pos
         self.size_hint = (None, None)
         self.size = size
         self.corner_radius = 5
+
+        self.connected_interfaces = []
 
         with self.canvas:
             Color(0, 0.6, 0)
@@ -28,23 +45,22 @@ class Interface(Widget):
         self.label = Label(text=param_name, pos=(self.pos[0], self.pos[1]), size_hint=(None, None), size=self.size)
         self.add_widget(self.label)
 
-    def default_value_for_type(self, param_type):
-        if param_type is inspect.Parameter.empty:
-            return 0
-        elif param_type is int:
-            return 0
-        elif param_type is float:
-            return 0.0
-        elif param_type is str:
-            return ''
-        elif param_type is list:
-            return []
-        else:
-            return None
-
     def touched(self, touch):
         if self.collide_point(*touch.pos):
             return True
+
+    def run(self):
+        if len(self.connected_interfaces) == 0:
+            # Default construct a value for each parameter type found
+            return self.init_value
+        elif len(self.connected_interfaces) == 1:
+            interface = self.connected_interfaces[0]
+            # TODO: call connected interface of connected interface to get required input parameters.
+            input_res = interface.parent.method(interface.parent.parent.component)
+            return input_res
+
+    def add_connected_interface(self, interface):
+        self.connected_interfaces.append(interface)
 
 
 class Method(Widget):
@@ -60,7 +76,7 @@ class Method(Widget):
         self.return_param = None
         self.corner_radius = 5
         self.interface_size = (20, 20)
-        self.interface_offsets = (5, 0)
+        self.interface_offsets = (20, 0)
 
         with self.canvas:
             Color(0, 0.8, 0)
@@ -131,13 +147,13 @@ class Method(Widget):
     def run(self):
         if callable(self.method):
             try:
-                # Default construct a value for each parameter type found
                 args = []
                 for parameter in self.input_interfaces:
-                    args.append(parameter.init_value)
+                    args.append(parameter.run())
 
                 res = self.method(self.parent.component, *args)
-                self.label.text = str(res)
+                if res is not None:
+                    self.label.text = str(res)
             except:
                 pass
 

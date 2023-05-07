@@ -57,6 +57,9 @@ class NodeEditor(FloatLayout):
                     if touched_node_interface is not None:
                         if touched_node_interface is not None and touched_node_interface is not self.line_start_node_interface:
                             is_new_interface = True
+                            self.line_start_node_interface.add_connected_interface(touched_node_interface)
+                            touched_node_interface.add_connected_interface(self.line_start_node_interface)
+
                             line_points = touch.ud['line'].points
                             with self.canvas:
                                 touch.ud['line'].points = [line_points[0], line_points[1], touched_node_interface.center_x, touched_node_interface.center_y]
