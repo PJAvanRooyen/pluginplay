@@ -30,7 +30,7 @@ class Interface(Widget):
         super(Interface, self).__init__()
         self.param_name = param_name
         self.param_type = param_type
-        self.init_value = default_value_for_type(param_type)
+        self.current_value = default_value_for_type(param_type)
         self.pos = pos
         self.size_hint = (None, None)
         self.size = size
@@ -55,7 +55,6 @@ class Interface(Widget):
             return self.init_value
         elif len(self.connected_interfaces) == 1:
             interface = self.connected_interfaces[0]
-            # TODO: call connected interface of connected interface to get required input parameters.
             input_res = interface.parent.method(interface.parent.parent.component)
             return input_res
 
@@ -144,16 +143,40 @@ class Method(Widget):
                 return interface
         return None
 
+    def on_touch_down(self, touch):
+        super(Method, self).on_touch_down(touch)
+        if self.collide_point(*touch.pos):
+            self.run()
+
     def run(self):
         if callable(self.method):
             try:
                 args = []
                 for parameter in self.input_interfaces:
-                    args.append(parameter.run())
+                    current_val = default_value_for_type(parameter.param_type)
+                    for connected_interface in parameter.connected_interfaces:
+                        current_val += connected_interface.current_value
+                    args.append(current_val)
+
+                    parameter.label.text = str(current_val)
 
                 res = self.method(self.parent.component, *args)
                 if res is not None:
-                    self.label.text = str(res)
+                    out_interface_count = len(self.output_interfaces)
+                    if out_interface_count == 1:
+                        out_parameter = self.output_interfaces[0]
+                        out_parameter.current_value = res
+
+                        out_parameter.label.text = str(res)
+                    else:
+                        i = 0
+                        for out_parameter in self.output_interfaces:
+                            out_parameter.current_value = res[i]
+                            i += 1
+
+                            out_parameter.label.text = str(res)
+
+
             except:
                 pass
 
@@ -203,8 +226,6 @@ class Node(Widget):
         if self.collide_point(*touch.pos):
             if touch.is_double_tap:
                 self.set_component()
-            else:
-                self.run()
 
     def run(self):
         for interface in self.methods:
