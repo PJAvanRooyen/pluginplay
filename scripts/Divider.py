@@ -1,9 +1,6 @@
 class Divider:
-    def __init__(self):
-        return
-
     def divide(self, divisor: float, dividend: float) -> float:
-        if dividend != 0:
-        	divisor / dividend
+        if divisor is not None and dividend is not None and dividend != 0:
+            return divisor / dividend
         else:
-        	return 0
+            return None

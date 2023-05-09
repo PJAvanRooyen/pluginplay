@@ -154,31 +154,36 @@ class Method(Widget):
                 args = []
                 for parameter in self.input_interfaces:
                     current_val = default_value_for_type(parameter.param_type)
-                    for connected_interface in parameter.connected_interfaces:
-                        current_val += connected_interface.current_value
+                    if len(parameter.connected_interfaces) == 1:
+                        current_val = parameter.connected_interfaces[0].current_value
                     args.append(current_val)
 
                     parameter.label.text = str(current_val)
 
                 res = self.method(self.parent.component, *args)
-                if res is not None:
-                    out_interface_count = len(self.output_interfaces)
-                    if out_interface_count == 1:
-                        out_parameter = self.output_interfaces[0]
-                        out_parameter.current_value = res
+
+                out_interface_count = len(self.output_interfaces)
+                if out_interface_count == 1:
+                    out_parameter = self.output_interfaces[0]
+                    out_parameter.current_value = res
+
+                    out_parameter.label.text = str(res)
+                else:
+                    i = 0
+                    for out_parameter in self.output_interfaces:
+                        out_parameter.current_value = res[i]
+                        i += 1
 
                         out_parameter.label.text = str(res)
-                    else:
-                        i = 0
-                        for out_parameter in self.output_interfaces:
-                            out_parameter.current_value = res[i]
-                            i += 1
-
-                            out_parameter.label.text = str(res)
 
 
             except:
-                pass
+                for in_parameter in self.input_interfaces:
+                    in_parameter.current_value = None
+                    in_parameter.label.text = str(None)
+                for out_parameter in self.output_interfaces:
+                    out_parameter.current_value = None
+                    out_parameter.label.text = str(None)
 
 
 class Node(Widget):

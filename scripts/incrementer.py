@@ -1,7 +1,5 @@
 class Incrementer:
-    def __init__(self):
-        return
-
     def increment(self, value: float) -> float:
-        value += 1
+        if value is not None:
+            value += 1
         return value

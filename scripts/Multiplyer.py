@@ -1,6 +1,6 @@
 class Multiplyer:
-    def __init__(self):
-        return
-
     def multiply(self, value1: float, value2: float) -> float:
-        return value1 * value2
+        if value1 is not None and value2 is not None:
+            return value1 * value2
+        else:
+            return None

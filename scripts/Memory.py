@@ -1,6 +1,6 @@
 class Memory:
     def __init__(self):
-        self.value = 0
+        self.value = None
 
     def set(self, value: float):
         self.value = value
