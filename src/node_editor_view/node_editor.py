@@ -18,11 +18,14 @@ class NodeEditor(FloatLayout):
     def on_drop_file(self, window, file_path, x, y):
         file_path = file_path.decode("utf-8")
         filename = os.path.basename(file_path)
-        destination = os.path.join(os.getcwd(), "scripts", filename)
+        scripts_dir = os.path.join(os.getcwd(), "scripts")
+        destination = os.path.join(scripts_dir, filename)
         try:
             if filename.endswith(".py"):
+                if not os.path.exists(destination):
+                    shutil.copy(file_path, destination)
                 name, suffix = os.path.splitext(filename)
-                shutil.copy(file_path, destination)
+
                 node = self.create_node((x, y))
                 node.get_components()
                 node.configure(name)
