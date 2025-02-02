@@ -254,7 +254,8 @@ class Node(Widget):
 
             for name, cls in module.__dict__.items():
                 if isinstance(cls, type):
-                    self.component_options[name] = cls
+                    self.component_options[module_name] = cls
+
     def set_component(self):
         # set component
         self.get_components()
@@ -281,16 +282,20 @@ class Node(Widget):
         popup_menu.open(self)
 
     def menu_item_selected(self, instance):
-        # reset
+        name = instance.text
+        self.reset()
+        self.configure(name)
+
+    def reset(self):
         self.component = None
         for interface in self.methods:
             self.remove_widget(interface)
         self.methods = []
 
-        name = instance.text
-        cls = self.component_options[name]
+    def configure(self, component_name):
+        cls = self.component_options[component_name]
 
-        self.label.text = name
+        self.label.text = component_name
         self.component = cls()
         class_type = type(self.component)
         class_members = [member for member in inspect.getmembers(class_type) if not member[0].startswith("_")]
@@ -314,4 +319,3 @@ class Node(Widget):
         height -= self.method_offsets[1]
 
         self.set_size((self.size[0], height + 2 * self.corner_radius))
-

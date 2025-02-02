@@ -13,6 +13,16 @@ Nodes can be connected together to propagate results from one node to the input 
 
 # usage
 When the application runs, it will show a black screen.
+## adding new functions
+NOTE: currently it is limited such that the python file must:
+- contain a single class
+- the data-types of the paramaters and the return value of the methods in the class must be well defined.
+### option 1:
+Drag and drop a python file (.py) into the window. 
+This will create a new node in the window and configure it with the script that was dragged in.
+### option 2:
+Paste any python file (.py) into the "scripts" folder. This can be done while the program is running.
+See "creating nodes" and "configuring a node" for details on how to use the newly added script.
 ## creating nodes:
 Left click anywhere on the screen to add a generic "node" element.
 generic node elements do not yet have any functionality.
@@ -29,12 +39,6 @@ Once a node is configured:
 ## node interaction:
 - left click and drag from one node's output interface to another node's input interface to create a connection between nodes.
 - once connected, if a node is executed, it's result will be shown on it's output interface, and that result will propagate to the input interfaces of the nodes connected to that output interface.
-## adding new functions
-- paste any python file (.py) into the "scripts" folder. This can be done while the program is running.
-NOTE: currently it is limited such that the python file must:
-- contain a single class
-- the class must contain a single method
-- the data-types of the paramaters and the return value must be well defined.
 
 ## example
 ### setup

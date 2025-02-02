@@ -1,6 +1,9 @@
 from kivy.app import App
+from kivy.core.window import Window
 from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import Line
+import os
+import shutil
 
 from src.node_editor_view.node import Node
 
@@ -11,6 +14,25 @@ class NodeEditor(FloatLayout):
 
         self.nodes = []
         self.line_start_node_interface = None
+
+    def on_drop_file(self, window, file_path, x, y):
+        file_path = file_path.decode("utf-8")
+        filename = os.path.basename(file_path)
+        destination = os.path.join(os.getcwd(), "scripts", filename)
+        try:
+            if filename.endswith(".py"):
+                name, suffix = os.path.splitext(filename)
+                shutil.copy(file_path, destination)
+                node = self.create_node((x, y))
+                node.get_components()
+                node.configure(name)
+
+                print(f"File saved to: {destination}")
+            else:
+                print("Invalid file")
+
+        except Exception as e:
+            print(f"Error: {e}")
 
     def touched_node(self, touch):
         for node in self.nodes:
@@ -31,8 +53,7 @@ class NodeEditor(FloatLayout):
                             touch.ud['line'] = Line(points=[touched_node_interface.center_x, touched_node_interface.center_y, touched_node_interface.center_x, touched_node_interface.center_y], width=2)
                         self.line_start_node_interface = touched_node_interface
         else:
-            self.nodes.append(Node(pos=(touch.x, touch.y)))
-            self.add_widget(self.nodes[-1])
+            self.create_node((touch.x, touch.y))
         return True
 
     def on_touch_move(self, touch):
@@ -70,7 +91,14 @@ class NodeEditor(FloatLayout):
         self.line_start_node_interface = None
         return True
 
+    def create_node(self, pos):
+        self.nodes.append(Node(pos=pos))
+        self.add_widget(self.nodes[-1])
+        return self.nodes[-1]
+
 
 class NodeEditorApp(App):
     def build(self):
-        return NodeEditor()
+        layout = NodeEditor()
+        Window.bind(on_drop_file=layout.on_drop_file)
+        return layout
